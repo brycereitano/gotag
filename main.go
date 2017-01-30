@@ -26,34 +26,28 @@ func main() {
 	}
 
 	if *helpFlag || (*offsetFlag == "" && *tagFlag == "") {
-		fmt.Fprintln(os.Stderr, Usage)
+		fmt.Fprintln(os.Stderr, usage)
 		return
 	}
 
-	file, err := ParseOffsetFlag(*offsetFlag)
+	file, err := tagger.NewFilePosition(*offsetFlag)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
-	pos, err := tagger.NewFilePosition(file.Name, file.Offset)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return
-	}
-
-	err = pos.TagStruct(*tagFlag, *prefixFlag, *suffixFlag)
+	err = file.TagStruct(*tagFlag, *prefixFlag, *suffixFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = format.Node(os.Stdout, pos.FileSet, pos.Root)
+	err = format.Node(os.Stdout, file.FileSet, file.Root)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-const Usage = `goanno: simple golang struct annotator.
+const usage = `goanno: simple golang struct annotator.
 Usage:
   goanno -offset <file>:#<byte-offset>) -tag <name>
 You must specify the object (defined struct) to add tags using the -offset.
@@ -64,5 +58,4 @@ Flags:
 -d         display diffs instead of rewriting files
 Examples:
 $ gorename -offset file.go:#123 -tag json
-  TODO:
 `
