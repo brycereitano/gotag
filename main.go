@@ -30,18 +30,24 @@ func main() {
 		return
 	}
 
-	file, err := tagger.NewFilePosition(*offsetFlag)
+	position, err := tagger.NewFilePosition(*offsetFlag)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return
 	}
 
-	err = file.TagStruct(*tagFlag, *prefixFlag, *suffixFlag)
+	err = position.TagStruct(*tagFlag, *prefixFlag, *suffixFlag)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = format.Node(os.Stdout, file.FileSet, file.Root)
+	file, err := os.OpenFile(position.Name, os.O_WRONLY, 0666)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	err = format.Node(file, position.FileSet, position.Root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,7 +61,6 @@ Flags:
 -offset    specifies the filename and byte offset of an identifier to rename.
            This form is intended for use by text editors.
 -tag       what tag to add to the struct fields.
--d         display diffs instead of rewriting files
 Examples:
 $ gorename -offset file.go:#123 -tag json
 `

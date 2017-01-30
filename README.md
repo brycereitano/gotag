@@ -1,5 +1,7 @@
 # Go Tag
+The gotag command adds tags to existing go structs in go files.
 
+Run with -help for usage information.
 
 ## Example
 
@@ -21,6 +23,10 @@ type Foo struct {
 Execution:
 ```
 $ gotag -offset sample.go:#50 -tag json -suffix ",omitempty"
+```
+
+Will result sample.go to change to:
+```golang
 package main
 
 type Foo struct {
